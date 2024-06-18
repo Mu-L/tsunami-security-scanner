@@ -2,6 +2,7 @@
 
 plugins {
     id 'net.ltgt.errorprone' apply false
+    id "com.github.johnrengelman.shadow"
 }
 
 subprojects {
@@ -11,6 +12,7 @@ subprojects {
     apply plugin: "signing"
 
     apply plugin: 'net.ltgt.errorprone'
+    apply plugin: 'com.github.johnrengelman.shadow'
 
     group = 'com.google.tsunami'
     version = '0.0.23-SNAPSHOT' // Current Tsunami version
@@ -32,7 +34,7 @@ subprojects {
         googleCloudStorageVersion = '1.103.1'
         googleHttpClientVersion = '1.44.1'
         guavaVersion = '28.2-jre'
-        guiceVersion = '4.2.3'
+        guiceVersion = '6.0.0'
         grpcVersion = '1.60.0'
         gsonVersion = '2.8.6'
         jaxbVersion = '2.3.1'
@@ -47,9 +49,10 @@ subprojects {
         protocVersion = protobufVersion
         snakeyamlVersion = '1.26'
         junitVersion = '4.13'
-        mockitoVersion = '2.28.2'
+        mockitoVersion = '5.12.0'
         truthVersion = '1.4.0'
         tcsVersion = '0.0.1'
+        hiveVersion = '2.3.2'
 
         // All Tsunami dependencies.
         deps = [
@@ -87,6 +90,7 @@ subprojects {
                 snakeyaml: "org.yaml:snakeyaml:${snakeyamlVersion}",
                 tcs_common: "com.google.tsunami:tcs-common:${tcsVersion}",
                 tcs_proto: "com.google.tsunami:tcs-proto:${tcsVersion}",
+                hive: "org.apache.hive:hive-jdbc:${hiveVersion}",
 
                 // Test dependencies.
                 guava_testlib: "com.google.guava:guava-testlib:${guavaVersion}",
@@ -97,6 +101,13 @@ subprojects {
                 truth8: "com.google.truth.extensions:truth-java8-extension:${truthVersion}",
                 truth_protobuf: "com.google.truth.extensions:truth-proto-extension:${truthVersion}",
         ]
+    }
+
+    // Resolving conflicting NameResolverProvider from grpc-core.jar and
+    // grpc-netty-shaded.jar, https://github.com/grpc/grpc-java/issues/10853
+    shadowJar {
+        zip64 true
+        mergeServiceFiles()
     }
 
     if (rootProject.properties.get('errorProne', true)) {
